@@ -25,14 +25,15 @@ class Item {
   }
 
   calcMatch(string) {
-    var matchIndex = [];
-    var searchIndex = -1;
-    var lookUpper = true;
-    var testName = this.name;
-    var lowerTestName = this.name.toLowerCase();
+    let matchIndex = [];
+    let searchIndex = -1;
+    let lookUpper = true;
+    let testName = this.name;
 
-    for (var i = 0; i < string.length; i++) {
-      var currentChar = string.charAt(i);
+    const lowerTestName = this.name.toLowerCase();
+
+    for (let i = 0; i < string.length; i++) {
+      let currentChar = string.charAt(i);
 
       if (lookUpper) {
         testName = this.name;
