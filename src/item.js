@@ -30,9 +30,10 @@ class Item {
     let lookUpper = true;
     let testName = this.name;
 
+    const l = string.length;
     const lowerTestName = this.name.toLowerCase();
 
-    for (let i = 0; i < string.length; i++) {
+    for (let i = 0; i < l; i++) {
       let currentChar = string.charAt(i);
 
       if (lookUpper) {
