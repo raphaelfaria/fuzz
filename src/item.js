@@ -3,7 +3,6 @@ class Item {
     this.name = name;
     this.mainIndex = index;
     this.weight = 0;
-    this.nameArray = this.name.split('');
     this.detailedArray = this._prepareItem();
   }
 
@@ -15,11 +14,11 @@ class Item {
             string[index - 1].toUpperCase() !== string[index - 1]));
     }
 
-    return this.nameArray.map((char, index) => {
+    return this.name.split('').map((char, index, arr) => {
       return {
         index,
         char,
-        beginSection: indexIsSectionStart(this.nameArray, index),
+        beginSection: indexIsSectionStart(arr, index),
         weight: 0
       };
     });

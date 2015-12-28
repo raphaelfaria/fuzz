@@ -13,7 +13,6 @@ describe('Item', () => {
       expect(item.name).to.be.equal(name);
       expect(item.mainIndex).to.be.equal(0);
       expect(item.weight).to.be.equal(0);
-      expect(item.nameArray[0]).to.be.equal(name.charAt(0));
     });
 
     it('sould detail properly', () => {
