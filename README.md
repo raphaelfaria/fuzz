@@ -1,6 +1,6 @@
 # Fuzz
 
-Simple almost-fuzzy string matcher, inspired by TextMate and Sublime searching
+Study of a simple almost-fuzzy string matcher, inspired by TextMate and Sublime searching
 
 <!-- [![Travis build status](http://img.shields.io/travis/raphaelfaria/fuzz.svg?style=flat)](https://travis-ci.org/raphaelfaria/fuzz)
 [![Code Climate](https://codeclimate.com/github/raphaelfaria/fuzz/badges/gpa.svg)](https://codeclimate.com/github/raphaelfaria/fuzz)
