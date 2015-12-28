@@ -44,6 +44,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var searchIndex = -1;
         var lookUpper = true;
         var testName = this.name;
+
         var lowerTestName = this.name.toLowerCase();
 
         for (var i = 0; i < string.length; i++) {
