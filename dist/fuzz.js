@@ -162,7 +162,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var results = this.filter(function (item) {
           return item.calcMatch(query);
         });
-        console.log(results);
+
         return results.sort(function (a, b) {
           if (a.weight > b.weight) {
             return -1;

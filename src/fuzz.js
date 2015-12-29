@@ -20,7 +20,7 @@ class Fuzz extends Array {
   match(string) {
     let query = string.replace(/\s+/g, '').toLowerCase();
     let results = this.filter(item => item.calcMatch(query));
-    console.log(results);
+
     return results.sort((a, b) => {
       if (a.weight > b.weight) {
         return -1;
