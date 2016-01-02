@@ -6,18 +6,6 @@ function isArray(item) {
   return /array/i.test(Object.prototype.toString.call(item));
 }
 
-function sortByWeight(a, b) {
-  if (a.weight > b.weight) {
-    return -1;
-  }
-
-  if (a.weight < b.weight) {
-    return 1;
-  }
-
-  return 0;
-}
-
 class Fuzz extends Array {
   constructor(collection) {
     super();
@@ -42,8 +30,7 @@ class Fuzz extends Array {
   match(string) {
     const query = string.replace(/\s+/g, '').toLowerCase();
     const resultArray = this.main
-      .filter(item => item.calcMatch(query))
-      .sort(sortByWeight);
+      .filter(item => item.calcMatch(query));
 
     return new Result(resultArray);
   }

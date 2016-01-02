@@ -114,6 +114,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return Item;
   })();
 
+  function sortByWeight(a, b) {
+    if (a.weight > b.weight) return -1;
+    if (a.weight < b.weight) return 1;
+    return 0;
+  }
+
   var Result = (function (_Array) {
     _inherits(Result, _Array);
 
@@ -122,26 +128,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       _get(Object.getPrototypeOf(Result.prototype), 'constructor', this).call(this);
 
-      this.meta = [];
-
       if (items.length) {
-        this.push.apply(this, items);
-      }
-    }
-
-    _createClass(Result, [{
-      key: 'push',
-      value: function push() {
-        for (var _len = arguments.length, items = Array(_len), _key = 0; _key < _len; _key++) {
-          items[_key] = arguments[_key];
-        }
-
-        _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this.meta, items);
-        return _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, items.map(function (item) {
+        this.meta = items.sort(sortByWeight);
+        _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, this.meta.map(function (item) {
           return item.name;
         }));
       }
-    }]);
+    }
 
     return Result;
   })(Array);
@@ -150,18 +143,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     if (Array.isArray) return Array.isArray(item);
     return (/array/i.test(Object.prototype.toString.call(item))
     );
-  }
-
-  function sortByWeight(a, b) {
-    if (a.weight > b.weight) {
-      return -1;
-    }
-
-    if (a.weight < b.weight) {
-      return 1;
-    }
-
-    return 0;
   }
 
   var Fuzz = (function (_Array2) {
@@ -199,7 +180,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var query = string.replace(/\s+/g, '').toLowerCase();
         var resultArray = this.main.filter(function (item) {
           return item.calcMatch(query);
-        }).sort(sortByWeight);
+        });
 
         return new Result(resultArray);
       }
