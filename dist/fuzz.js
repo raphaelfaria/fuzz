@@ -18,7 +18,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       this.name = name;
       this.mainIndex = index;
       this.weight = 0;
-      this.detailedArray = this._prepareItem();
+      this._detailedArray = this._prepareItem();
     }
 
     _createClass(Item, [{
@@ -72,12 +72,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           lookUpper = !lookUpper;
         }
 
-        this.matched = matchIndex;
+        this._matched = matchIndex;
 
         // Calculate rank
         this.calculateWeight();
 
-        return !!this.matched.length;
+        return !!this._matched.length;
       }
     }, {
       key: 'calculateWeight',
@@ -86,26 +86,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var substringSize = 0;
 
-        this.weight = this.matched.reduce(function (weight, matchIndex, index) {
-          if (_this.detailedArray[matchIndex].beginSection === true) {
-            _this.detailedArray[matchIndex].weight = 80 - matchIndex;
-            weight += _this.detailedArray[matchIndex].weight;
+        this.weight = this._matched.reduce(function (weight, matchIndex, index) {
+          if (_this._detailedArray[matchIndex].beginSection === true) {
+            _this._detailedArray[matchIndex].weight = 80 - matchIndex;
+            weight += _this._detailedArray[matchIndex].weight;
 
-            if (_this.matched[index - 1] == matchIndex - 1) {
+            if (_this._matched[index - 1] == matchIndex - 1) {
               substringSize++;
-              _this.detailedArray[matchIndex].weight += 15 * Math.pow(2, substringSize) - matchIndex;
-              weight += _this.detailedArray[matchIndex].weight;
+              _this._detailedArray[matchIndex].weight += 15 * Math.pow(2, substringSize) - matchIndex;
+              weight += _this._detailedArray[matchIndex].weight;
             }
-          } else if (_this.matched[index - 1] == matchIndex - 1) {
+          } else if (_this._matched[index - 1] == matchIndex - 1) {
             substringSize++;
-            _this.detailedArray[matchIndex].weight = 15 * Math.pow(2, substringSize) - matchIndex;
-            weight += _this.detailedArray[matchIndex].weight;
+            _this._detailedArray[matchIndex].weight = 15 * Math.pow(2, substringSize) - matchIndex;
+            weight += _this._detailedArray[matchIndex].weight;
           } else {
-            _this.detailedArray[matchIndex].weight = 10 - matchIndex;
-            weight += _this.detailedArray[matchIndex].weight;
+            _this._detailedArray[matchIndex].weight = 10 - matchIndex;
+            weight += _this._detailedArray[matchIndex].weight;
           }
 
-          weight -= _this.name.length - 1 - _this.matched[_this.matched.length - 1];
+          weight -= _this.name.length - 1 - _this._matched[_this._matched.length - 1];
 
           return weight;
         }, 0);
@@ -192,6 +192,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'match',
       value: function match(string) {
         var query = string.replace(/\s+/g, '').toLowerCase();
+
         var resultArray = this.main.filter(function (item) {
           return item.calcMatch(query);
         }).sort(sortByWeight);
