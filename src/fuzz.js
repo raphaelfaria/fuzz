@@ -34,6 +34,13 @@ class Fuzz extends Array {
 
     return new Result(resultArray);
   }
+
+  simpleMatch(string) {
+    const queryRegex = new RegExp(string.split('').join('.*?'), 'i');
+    return this.filter(item => {
+      return queryRegex.test(item);
+    });
+  }
 }
 
 Fuzz.match = function match(string, collection) {
