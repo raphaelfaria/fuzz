@@ -41,4 +41,9 @@ class Fuzz extends Array {
   }
 }
 
+Fuzz.match = function(string, collection) {
+  var fuzz = new Fuzz(collection);
+  return fuzz.match(string);
+};
+
 export default Fuzz;
