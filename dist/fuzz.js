@@ -51,36 +51,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         for (var i = 0; i < l; i++) {
           var currentChar = string.charAt(i);
 
-          if (lookUpper) {
-            testName = this.name;
-            currentChar = currentChar.toUpperCase();
-          }
-
-          if (!lookUpper) {
-            testName = lowerTestName;
-          }
-
           if (searchIndex >= this.name.length) {
             return false;
           }
 
-          searchIndex = testName.indexOf(currentChar, searchIndex + 1);
+          searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(lookUpper ? currentChar.toUpperCase() : currentChar, searchIndex + 1);
 
           if (searchIndex > -1) {
             matchIndex.push(searchIndex);
-          } else {
-            if (lookUpper === false) {
-              matchIndex = [];
-              break;
-            }
-
-            if (lookUpper === true) {
-              i -= 1;
-              searchIndex = matchIndex[matchIndex.length - 1] || -1;
-            }
-
-            lookUpper = !lookUpper;
+            continue;
           }
+
+          if (!lookUpper) {
+            matchIndex = [];
+            break;
+          }
+
+          i -= 1;
+          searchIndex = matchIndex[matchIndex.length - 1] || -1;
+          lookUpper = !lookUpper;
         }
 
         this.matched = matchIndex;
@@ -128,8 +117,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return Item;
   })();
 
-  var Fuzz = (function (_Array) {
-    _inherits(Fuzz, _Array);
+  var Result = (function (_Array) {
+    _inherits(Result, _Array);
+
+    function Result(items) {
+      _classCallCheck(this, Result);
+
+      _get(Object.getPrototypeOf(Result.prototype), 'constructor', this).call(this);
+
+      this.meta = [];
+
+      if (items.length) {
+        this.push.apply(this, items);
+      }
+    }
+
+    _createClass(Result, [{
+      key: 'push',
+      value: function push() {
+        for (var _len = arguments.length, items = Array(_len), _key = 0; _key < _len; _key++) {
+          items[_key] = arguments[_key];
+        }
+
+        _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this.meta, items);
+        return _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, items.map(function (item) {
+          return item.name;
+        }));
+      }
+    }]);
+
+    return Result;
+  })(Array);
+
+  function sortByWeight(a, b) {
+    if (a.weight > b.weight) {
+      return -1;
+    }
+
+    if (a.weight < b.weight) {
+      return 1;
+    }
+
+    return 0;
+  }
+
+  var Fuzz = (function (_Array2) {
+    _inherits(Fuzz, _Array2);
 
     function Fuzz(collection) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -137,8 +170,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       _classCallCheck(this, Fuzz);
 
       _get(Object.getPrototypeOf(Fuzz.prototype), 'constructor', this).call(this);
-      this.main = collection;
-      this.push.apply(this, this._prepareCollection());
+      this.push.apply(this, collection);
+      this.main = this._prepareCollection();
     }
 
     _createClass(Fuzz, [{
@@ -151,7 +184,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function _prepareCollection() {
         var _this2 = this;
 
-        return this.main.map(function (item, i) {
+        return this.map(function (item, i) {
           return new Item(_this2.parse(item), i);
         });
       }
@@ -159,29 +192,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'match',
       value: function match(string) {
         var query = string.replace(/\s+/g, '').toLowerCase();
-        var results = this.filter(function (item) {
+        var resultArray = this.main.filter(function (item) {
           return item.calcMatch(query);
-        });
+        }).sort(sortByWeight);
 
-        return results.sort(function (a, b) {
-          if (a.weight > b.weight) {
-            return -1;
-          }
-
-          if (a.weight < b.weight) {
-            return 1;
-          }
-
-          return 0;
-        });
+        return new Result(resultArray);
       }
     }]);
 
     return Fuzz;
   })(Array);
 
-  var fuzz = Fuzz;
+  Fuzz.match = function (string, collection) {
+    var fuzz = new Fuzz(collection);
+    return fuzz.match(string);
+  };
 
-  return fuzz;
+  var _fuzz = Fuzz;
+
+  return _fuzz;
 });
 //# sourceMappingURL=fuzz.js.map
