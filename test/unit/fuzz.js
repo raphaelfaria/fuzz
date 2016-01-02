@@ -1,4 +1,6 @@
 import Fuzz from '../../src/fuzz';
+import Item from '../../src/item';
+import Result from '../../src/result';
 
 describe('Fuzz', () => {
   const itemsStr = ['string', 'String', 'match', 'something'];
@@ -15,6 +17,8 @@ describe('Fuzz', () => {
 
       expect(fuzzInstance).to.be.ok;
       expect(fuzzInstance).to.be.instanceof(Fuzz);
+      expect(fuzzInstance[0]).to.be.a('string');
+      expect(fuzzInstance.main[0]).to.be.instanceof(Item);
     });
 
     it('sould throw an error if constructor argument is not array', () => {
@@ -30,5 +34,13 @@ describe('Fuzz', () => {
     // it('should have always returned hello', () => {
     //   expect(Fuzz.greet).to.have.always.returned('hello');
     // });
+  });
+
+  describe('match', () => {
+    it('should return a Result instance', () => {
+      const fuzzInstance = new Fuzz(itemsStr);
+
+      expect(fuzzInstance.match('s')).to.be.instanceof(Result);
+    });
   });
 });
