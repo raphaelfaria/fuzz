@@ -1,10 +1,24 @@
 import Item from './item';
+import Result from './result';
+
+function sortByWeight(a, b) {
+  if (a.weight > b.weight) {
+    return -1;
+  }
+
+  if (a.weight < b.weight) {
+    return 1;
+  }
+
+  return 0;
+}
 
 class Fuzz extends Array {
   constructor(collection, options = {}) {
     super();
-    this.main = collection;
-    this.push.apply(this, this._prepareCollection());
+    this.push.apply(this, collection);
+    this.main = this._prepareCollection();
+
   }
 
   parse(item) {
@@ -12,26 +26,18 @@ class Fuzz extends Array {
   }
 
   _prepareCollection() {
-    return this.main.map((item, i) => {
+    return this.map((item, i) => {
       return new Item(this.parse(item), i);
     });
   }
 
   match(string) {
     let query = string.replace(/\s+/g, '').toLowerCase();
-    let results = this.filter(item => item.calcMatch(query));
+    let resultArray = this.main
+      .filter(item => item.calcMatch(query))
+      .sort(sortByWeight);
 
-    return results.sort((a, b) => {
-      if (a.weight > b.weight) {
-        return -1;
-      }
-
-      if (a.weight < b.weight) {
-        return 1;
-      }
-
-      return 0;
-    });
+    return new Result(resultArray);
   }
 }
 
