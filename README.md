@@ -2,8 +2,26 @@
 
 Study of a simple almost-fuzzy string matcher, inspired by TextMate and Sublime searching
 
-<!-- [![Travis build status](http://img.shields.io/travis/raphaelfaria/fuzz.svg?style=flat)](https://travis-ci.org/raphaelfaria/fuzz)
-[![Code Climate](https://codeclimate.com/github/raphaelfaria/fuzz/badges/gpa.svg)](https://codeclimate.com/github/raphaelfaria/fuzz)
-[![Test Coverage](https://codeclimate.com/github/raphaelfaria/fuzz/badges/coverage.svg)](https://codeclimate.com/github/raphaelfaria/fuzz)
-[![Dependency Status](https://david-dm.org/raphaelfaria/fuzz.svg)](https://david-dm.org/raphaelfaria/fuzz)
-[![devDependency Status](https://david-dm.org/raphaelfaria/fuzz/dev-status.svg)](https://david-dm.org/raphaelfaria/fuzz#info=devDependencies) -->
+## Usage
+
+Create a new instance of Fuzz by passing an array of strings
+
+```javascript
+var fuzz = new Fuzz(['String', 'str', 'match']);
+```
+
+To make a search use the `match` method. The results are ordered by it's relevance according to the matching string.
+
+```javascript
+fuzz.match('str');
+// ["str", "String"]
+```
+
+The result will have a `meta` array with detailed info about the
+search results. Each `Item` will have a `name`, `mainIndex` which is the index of the result on the main collection, and `weight`.
+
+```javascript
+// Getting the first result, for example
+fuzz.match('str').meta[0];
+// Item {name: "str", mainIndex: 1, weight: 167}
+```
