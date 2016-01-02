@@ -32,7 +32,8 @@ class Fuzz extends Array {
   }
 
   match(string) {
-    let query = string.replace(/\s+/g, '').toLowerCase();
+    const query = string.replace(/\s+/g, '').toLowerCase();
+
     let resultArray = this.main
       .filter(item => item.calcMatch(query))
       .sort(sortByWeight);

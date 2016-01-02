@@ -16,10 +16,10 @@ describe('Item', () => {
     });
 
     it('sould detail properly', () => {
-      expect(item.detailedArray[0].index).to.be.equal(0);
-      expect(item.detailedArray[0].char).to.be.equal('S');
-      expect(item.detailedArray[0].beginSection).to.be.true;
-      expect(item.detailedArray[0].weight).to.be.equal(0);
+      expect(item._detailedArray[0].index).to.be.equal(0);
+      expect(item._detailedArray[0].char).to.be.equal('S');
+      expect(item._detailedArray[0].beginSection).to.be.true;
+      expect(item._detailedArray[0].weight).to.be.equal(0);
     });
   });
 
@@ -30,8 +30,8 @@ describe('Item', () => {
 
     it('should match properly', () => {
       expect(item.calcMatch('s')).to.be.true;
-      expect(item.matched).to.be.ok;
-      expect(item.matched[0]).to.be.equal(0);
+      expect(item._matched).to.be.ok;
+      expect(item._matched[0]).to.be.equal(0);
     });
 
     it('should calculate the weight properly', () => {
