@@ -60,12 +60,12 @@ class Item {
     this._matched = matchIndex;
 
     // Calculate rank
-    this.calculateWeight();
+    this._calculateWeight();
 
     return !!(this._matched.length);
   }
 
-  calculateWeight() {
+  _calculateWeight() {
     let substringSize = 0;
 
     this.weight = this._matched.reduce((weight, matchIndex, index) => {
@@ -93,8 +93,6 @@ class Item {
 
       return weightCalc;
     }, 0);
-
-    return this;
   }
 }
 
