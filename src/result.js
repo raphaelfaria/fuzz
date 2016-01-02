@@ -2,9 +2,8 @@ class Result extends Array {
   constructor(items) {
     super();
 
-    this.meta = [];
-
     if (items.length) {
+      this.meta = [];
       this.push.apply(this, items);
     }
   }
