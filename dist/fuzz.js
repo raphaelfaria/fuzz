@@ -128,12 +128,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       _get(Object.getPrototypeOf(Result.prototype), 'constructor', this).call(this);
 
-      if (items.length) {
-        this.meta = items.sort(sortByWeight);
-        _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, this.meta.map(function (item) {
-          return item.name;
-        }));
-      }
+      if (!items.length) return this;
+
+      this.meta = items.sort(sortByWeight);
+      _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, this.meta.map(function (item) {
+        return item.name;
+      }));
     }
 
     return Result;
