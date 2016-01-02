@@ -36,36 +36,28 @@ class Item {
     for (let i = 0; i < l; i++) {
       let currentChar = string.charAt(i);
 
-      if (lookUpper) {
-        testName = this.name;
-        currentChar = currentChar.toUpperCase();
-      }
-
-      if (!lookUpper) {
-        testName = lowerTestName;
-      }
-
       if (searchIndex >= this.name.length) {
         return false;
       }
 
-      searchIndex = testName.indexOf(currentChar, searchIndex + 1);
+      searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(
+        lookUpper ? currentChar.toUpperCase() : currentChar,
+        searchIndex + 1
+      );
 
       if (searchIndex > -1) {
         matchIndex.push(searchIndex);
-      } else {
-        if (lookUpper === false) {
-          matchIndex = [];
-          break;
-        }
-
-        if (lookUpper === true) {
-          i -= 1;
-          searchIndex = matchIndex[matchIndex.length - 1] || -1;
-        }
-
-        lookUpper = !lookUpper;
+        continue;
       }
+
+      if (!lookUpper) {
+        matchIndex = [];
+        break;
+      }
+
+      i -= 1;
+      searchIndex = matchIndex[matchIndex.length - 1] || -1;
+      lookUpper = !lookUpper;
     }
 
     this.matched = matchIndex;
