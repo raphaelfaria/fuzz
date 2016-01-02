@@ -19,7 +19,7 @@ class Item {
         index,
         char,
         beginSection: indexIsSectionStart(arr, index),
-        weight: 0
+        weight: 0,
       };
     });
   }
@@ -28,13 +28,12 @@ class Item {
     let matchIndex = [];
     let searchIndex = -1;
     let lookUpper = true;
-    let testName = this.name;
 
     const l = string.length;
     const lowerTestName = this.name.toLowerCase();
 
     for (let i = 0; i < l; i++) {
-      let currentChar = string.charAt(i);
+      const currentChar = string.charAt(i);
 
       if (searchIndex >= this.name.length) {
         return false;
@@ -72,28 +71,29 @@ class Item {
     let substringSize = 0;
 
     this.weight = this._matched.reduce((weight, matchIndex, index) => {
+      let weightCalc = weight;
+
       if (this._detailedArray[matchIndex].beginSection === true) {
         this._detailedArray[matchIndex].weight = (80 - matchIndex);
-        weight += this._detailedArray[matchIndex].weight;
+        weightCalc += this._detailedArray[matchIndex].weight;
 
-        if (this._matched[index - 1] == matchIndex - 1) {
+        if (this._matched[index - 1] === matchIndex - 1) {
           substringSize++;
           this._detailedArray[matchIndex].weight += 15 * Math.pow(2, substringSize) - matchIndex;
-          weight += this._detailedArray[matchIndex].weight;
+          weightCalc += this._detailedArray[matchIndex].weight;
         }
-      } else if (this._matched[index - 1] == matchIndex - 1) {
+      } else if (this._matched[index - 1] === matchIndex - 1) {
         substringSize++;
         this._detailedArray[matchIndex].weight = 15 * Math.pow(2, substringSize) - matchIndex;
-        weight += this._detailedArray[matchIndex].weight;
+        weightCalc += this._detailedArray[matchIndex].weight;
       } else {
         this._detailedArray[matchIndex].weight = 10 - matchIndex;
-        weight += this._detailedArray[matchIndex].weight;
+        weightCalc += this._detailedArray[matchIndex].weight;
       }
 
-      weight -= ((this.name.length - 1) - this._matched[this._matched.length - 1]);
+      weightCalc -= ((this.name.length - 1) - this._matched[this._matched.length - 1]);
 
-      return weight;
-
+      return weightCalc;
     }, 0);
 
     return this;

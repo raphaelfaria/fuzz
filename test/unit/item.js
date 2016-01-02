@@ -4,7 +4,7 @@ describe('Item', () => {
   var item;
   var name = 'String';
 
-  describe('Item constructor', () => {
+  describe('constructor', () => {
     beforeEach(() => {
       item = new Item(name, 0);
     });
