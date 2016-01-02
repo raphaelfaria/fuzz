@@ -19,7 +19,7 @@ function sortByWeight(a, b) {
 }
 
 class Fuzz extends Array {
-  constructor(collection, options = {}) {
+  constructor(collection) {
     super();
 
     if (!isArray(collection)) throw new Error('Collection should be an array');
@@ -41,8 +41,7 @@ class Fuzz extends Array {
 
   match(string) {
     const query = string.replace(/\s+/g, '').toLowerCase();
-
-    let resultArray = this.main
+    const resultArray = this.main
       .filter(item => item.calcMatch(query))
       .sort(sortByWeight);
 
@@ -50,9 +49,8 @@ class Fuzz extends Array {
   }
 }
 
-Fuzz.match = function(string, collection) {
-  var fuzz = new Fuzz(collection);
-  return fuzz.match(string);
+Fuzz.match = function match(string, collection) {
+  return (new Fuzz(collection)).match(string);
 };
 
 export default Fuzz;

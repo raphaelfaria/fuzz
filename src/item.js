@@ -35,9 +35,7 @@ class Item {
     for (let i = 0; i < l; i++) {
       const currentChar = string.charAt(i);
 
-      if (searchIndex >= this.name.length) {
-        return false;
-      }
+      if (searchIndex >= this.name.length) return false;
 
       searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(
         lookUpper ? currentChar.toUpperCase() : currentChar,

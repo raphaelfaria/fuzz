@@ -1,8 +1,9 @@
 import Item from '../../src/item';
 
 describe('Item', () => {
-  var item;
-  var name = 'String';
+  let item;
+
+  const name = 'String';
 
   describe('constructor', () => {
     beforeEach(() => {

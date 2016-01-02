@@ -1,8 +1,8 @@
 import Fuzz from '../../src/fuzz';
 
 describe('Fuzz', () => {
-  // let fuzz;
   const itemsStr = ['string', 'String', 'match', 'something'];
+
   // const itemsNum = [1, 2, 3];
 
   describe('constructor', () => {
