@@ -8,10 +8,6 @@ describe('Fuzz', () => {
   const itemsNum = [1, 2, 3];
 
   describe('constructor', () => {
-    // beforeEach(() => {
-    //   fuzz = new Fuzz()
-    // });
-
     it('should construct properly', () => {
       const fuzzInstance = new Fuzz(itemsStr);
 
