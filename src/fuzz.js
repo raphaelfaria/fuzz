@@ -2,8 +2,10 @@ import Item from './item';
 import Result from './result';
 
 function isArray(item) {
-  if (Array.isArray) return Array.isArray(item);
-  return /array/i.test(Object.prototype.toString.call(item));
+  return item.constructor === Array ||
+    item instanceof Array ||
+    Array.isArray && Array.isArray(item) && item !== Array.prototype ||
+    /array/i.test(Object.prototype.toString.call(item));
 }
 
 class Fuzz extends Array {
