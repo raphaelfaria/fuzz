@@ -5,7 +5,7 @@ import Result from '../../src/result';
 describe('Fuzz', () => {
   const itemsStr = ['string', 'String', 'match', 'something'];
 
-  // const itemsNum = [1, 2, 3];
+  const itemsNum = [1, 2, 3];
 
   describe('constructor', () => {
     // beforeEach(() => {
@@ -22,18 +22,12 @@ describe('Fuzz', () => {
     });
 
     it('sould throw an error if constructor argument is not array', () => {
-      // find out how to detect this error on Chai
-      // expect(new Fuzz(itemsNum)).to.throw(Error);
+      expect(() => new Fuzz(itemsNum)).to.throw(Error);
     });
 
     it('sould throw an error if array is not of strings', () => {
-      // find out how to detect this error on Chai
-      // expect(new Fuzz(itemsNum)).to.throw(Error);
+      expect(() => new Fuzz(itemsNum)).to.throw(Error);
     });
-
-    // it('should have always returned hello', () => {
-    //   expect(Fuzz.greet).to.have.always.returned('hello');
-    // });
   });
 
   describe('match', () => {
@@ -41,6 +35,10 @@ describe('Fuzz', () => {
       const fuzzInstance = new Fuzz(itemsStr);
 
       expect(fuzzInstance.match('s')).to.be.instanceof(Result);
+    });
+
+    it('test quick match', () => {
+      expect(Fuzz.match('s', itemsStr)).to.be.instanceof(Result);
     });
   });
 });
