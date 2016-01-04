@@ -36,10 +36,10 @@ class Fuzz extends Array {
 
     return new Result(resultArray);
   }
-}
 
-Fuzz.match = function match(string, collection) {
-  return (new Fuzz(collection)).match(string);
-};
+  static match(string, collection) {
+    return (new Fuzz(collection)).match(string);
+  }
+}
 
 export default Fuzz;
