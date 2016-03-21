@@ -2,7 +2,6 @@ class Item {
   constructor(name, index) {
     this.name = name;
     this.mainIndex = index;
-    this.weight = 0;
     this._detailedArray = this._prepareItem();
   }
 
@@ -19,13 +18,12 @@ class Item {
         index,
         char,
         beginSection: indexIsSectionStart(arr, index),
-        weight: 0,
       };
     });
   }
 
   calcMatch(string) {
-    let matchIndex = [];
+    let matchIndexArr = [];
     let searchIndex = -1;
     let lookUpper = true;
 
@@ -43,53 +41,49 @@ class Item {
       );
 
       if (searchIndex > -1) {
-        matchIndex.push(searchIndex);
+        matchIndexArr.push(searchIndex);
         continue;
       }
 
       if (!lookUpper) {
-        matchIndex = [];
+        matchIndexArr = [];
         break;
       }
 
       i -= 1;
-      searchIndex = matchIndex[matchIndex.length - 1] || -1;
+      searchIndex = matchIndexArr[matchIndexArr.length - 1] || -1;
       lookUpper = !lookUpper;
     }
 
-    this._matched = matchIndex;
-
-    // Calculate rank
-    this._calculateWeight();
-
-    return !!(this._matched.length);
+    return !!matchIndexArr.length && this._calculateWeight(matchIndexArr);
   }
 
-  _calculateWeight() {
+  _calculateWeight(matchIndexArr) {
     let substringSize = 0;
 
-    this.weight = this._matched.reduce((weight, matchIndex, index) => {
+    return matchIndexArr.reduce((weight, matchIndex, index) => {
       let weightCalc = weight;
+      let tempWeight = 0;
 
       if (this._detailedArray[matchIndex].beginSection === true) {
-        this._detailedArray[matchIndex].weight = (80 - matchIndex);
-        weightCalc += this._detailedArray[matchIndex].weight;
+        tempWeight = (80 - matchIndex);
+        weightCalc += tempWeight;
 
-        if (this._matched[index - 1] === matchIndex - 1) {
+        if (matchIndexArr[index - 1] === matchIndex - 1) {
           substringSize++;
-          this._detailedArray[matchIndex].weight += 15 * Math.pow(2, substringSize) - matchIndex;
-          weightCalc += this._detailedArray[matchIndex].weight;
+          tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
+          weightCalc += tempWeight;
         }
-      } else if (this._matched[index - 1] === matchIndex - 1) {
+      } else if (matchIndexArr[index - 1] === matchIndex - 1) {
         substringSize++;
-        this._detailedArray[matchIndex].weight = 15 * Math.pow(2, substringSize) - matchIndex;
-        weightCalc += this._detailedArray[matchIndex].weight;
+        tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
+        weightCalc += tempWeight;
       } else {
-        this._detailedArray[matchIndex].weight = 10 - matchIndex;
-        weightCalc += this._detailedArray[matchIndex].weight;
+        tempWeight = 10 - matchIndex;
+        weightCalc += tempWeight;
       }
 
-      weightCalc -= ((this.name.length - 1) - this._matched[this._matched.length - 1]);
+      weightCalc -= ((this.name.length - 1) - matchIndexArr[matchIndexArr.length - 1]);
 
       return weightCalc;
     }, 0);

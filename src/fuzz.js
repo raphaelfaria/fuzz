@@ -1,5 +1,6 @@
 import Item from './item';
 import Result from './result';
+import ResultItem from './result-item';
 
 function isArray(item) {
   if (Array.isArray) return Array.isArray(item);
@@ -10,7 +11,9 @@ class Fuzz extends Array {
   constructor(collection) {
     super();
 
-    if (!isArray(collection)) throw new Error('Collection should be an array');
+    if (!isArray(collection)) {
+      throw new Error('Argument to Fuzz should be an array');
+    }
 
     this.push.apply(this, collection);
     this.main = this._prepareCollection();
@@ -22,15 +25,25 @@ class Fuzz extends Array {
 
   _prepareCollection() {
     return this.map((item, i) => {
-      if (typeof item !== 'string') throw new Error('Items should be strings');
+      if (typeof item !== 'string') {
+        throw new Error('Argument to Fuzz should be an array of strings');
+      }
+
       return new Item(this.parse(item), i);
     });
   }
 
   match(string) {
     const query = string.replace(/\s+/g, '').toLowerCase();
-    const resultArray = this.main
-      .filter(item => item.calcMatch(query));
+    const resultArray = this.main.reduce((arr, item) => {
+      const weight = item.calcMatch(query);
+
+      if (weight !== false) {
+        arr.push(new ResultItem(item, weight));
+      }
+
+      return arr;
+    }, []);
 
     return new Result(resultArray);
   }
