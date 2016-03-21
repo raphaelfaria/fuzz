@@ -204,14 +204,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return queryRegex.test(item);
         });
       }
+    }], [{
+      key: 'match',
+      value: function match(string, collection) {
+        return new Fuzz(collection).match(string);
+      }
     }]);
 
     return Fuzz;
   })(Array);
-
-  Fuzz.match = function match(string, collection) {
-    return new Fuzz(collection).match(string);
-  };
 
   var fuzz = Fuzz;
 
