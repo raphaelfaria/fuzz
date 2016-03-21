@@ -17,7 +17,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       this.name = name;
       this.mainIndex = index;
-      this.weight = 0;
       this._detailedArray = this._prepareItem();
     }
 
@@ -32,15 +31,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return {
             index: index,
             char: char,
-            beginSection: indexIsSectionStart(arr, index),
-            weight: 0
+            beginSection: indexIsSectionStart(arr, index)
           };
         });
       }
     }, {
       key: 'calcMatch',
       value: function calcMatch(string) {
-        var matchIndex = [];
+        var matchIndexArr = [];
         var searchIndex = -1;
         var lookUpper = true;
 
@@ -55,56 +53,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(lookUpper ? currentChar.toUpperCase() : currentChar, searchIndex + 1);
 
           if (searchIndex > -1) {
-            matchIndex.push(searchIndex);
+            matchIndexArr.push(searchIndex);
             continue;
           }
 
           if (!lookUpper) {
-            matchIndex = [];
+            matchIndexArr = [];
             break;
           }
 
           i -= 1;
-          searchIndex = matchIndex[matchIndex.length - 1] || -1;
+          searchIndex = matchIndexArr[matchIndexArr.length - 1] || -1;
           lookUpper = !lookUpper;
         }
 
-        this._matched = matchIndex;
-
-        // Calculate rank
-        this._calculateWeight();
-
-        return !!this._matched.length;
+        return !!matchIndexArr.length && this._calculateWeight(matchIndexArr);
       }
     }, {
       key: '_calculateWeight',
-      value: function _calculateWeight() {
+      value: function _calculateWeight(matchIndexArr) {
         var _this = this;
 
         var substringSize = 0;
 
-        this.weight = this._matched.reduce(function (weight, matchIndex, index) {
+        return matchIndexArr.reduce(function (weight, matchIndex, index) {
           var weightCalc = weight;
+          var tempWeight = 0;
 
           if (_this._detailedArray[matchIndex].beginSection === true) {
-            _this._detailedArray[matchIndex].weight = 80 - matchIndex;
-            weightCalc += _this._detailedArray[matchIndex].weight;
+            tempWeight = 80 - matchIndex;
+            weightCalc += tempWeight;
 
-            if (_this._matched[index - 1] === matchIndex - 1) {
+            if (matchIndexArr[index - 1] === matchIndex - 1) {
               substringSize++;
-              _this._detailedArray[matchIndex].weight += 15 * Math.pow(2, substringSize) - matchIndex;
-              weightCalc += _this._detailedArray[matchIndex].weight;
+              tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
+              weightCalc += tempWeight;
             }
-          } else if (_this._matched[index - 1] === matchIndex - 1) {
+          } else if (matchIndexArr[index - 1] === matchIndex - 1) {
             substringSize++;
-            _this._detailedArray[matchIndex].weight = 15 * Math.pow(2, substringSize) - matchIndex;
-            weightCalc += _this._detailedArray[matchIndex].weight;
+            tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
+            weightCalc += tempWeight;
           } else {
-            _this._detailedArray[matchIndex].weight = 10 - matchIndex;
-            weightCalc += _this._detailedArray[matchIndex].weight;
+            tempWeight = 10 - matchIndex;
+            weightCalc += tempWeight;
           }
 
-          weightCalc -= _this.name.length - 1 - _this._matched[_this._matched.length - 1];
+          weightCalc -= _this.name.length - 1 - matchIndexArr[matchIndexArr.length - 1];
 
           return weightCalc;
         }, 0);
@@ -115,9 +109,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   })();
 
   function sortByWeight(a, b) {
-    if (a.weight > b.weight) return -1;
-    if (a.weight < b.weight) return 1;
-    return 0;
+    return b.weight - a.weight;
   }
 
   var Result = (function (_Array) {
@@ -128,19 +120,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       _get(Object.getPrototypeOf(Result.prototype), 'constructor', this).call(this);
 
-      if (!items.length) return this;
+      if (!items.length) {
+        return false;
+      }
 
       this.meta = items.sort(sortByWeight);
-      _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, this.meta.map(function (item) {
-        return item.name;
+      _get(Object.getPrototypeOf(Result.prototype), 'push', this).apply(this, this.meta.map(function (resultItem) {
+        return resultItem.item.name;
       }));
     }
 
     return Result;
   })(Array);
 
+  var ResultItem = function ResultItem(item, weight) {
+    _classCallCheck(this, ResultItem);
+
+    this.item = item;
+    this.weight = weight;
+  };
+
   function isArray(item) {
-    return item.constructor === Array || item instanceof Array || Array.isArray && Array.isArray(item) && item !== Array.prototype || /array/i.test(Object.prototype.toString.call(item));
+    if (Array.isArray) return Array.isArray(item);
+    return (/array/i.test(Object.prototype.toString.call(item))
+    );
   }
 
   var Fuzz = (function (_Array2) {
@@ -151,7 +154,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       _get(Object.getPrototypeOf(Fuzz.prototype), 'constructor', this).call(this);
 
-      if (!isArray(collection)) throw new Error('Collection should be an array');
+      if (!isArray(collection)) {
+        throw new Error('Argument to Fuzz should be an array');
+      }
 
       this.push.apply(this, collection);
       this.main = this._prepareCollection();
@@ -168,7 +173,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var _this2 = this;
 
         return this.map(function (item, i) {
-          if (typeof item !== 'string') throw new Error('Items should be strings');
+          if (typeof item !== 'string') {
+            throw new Error('Argument to Fuzz should be an array of strings');
+          }
+
           return new Item(_this2.parse(item), i);
         });
       }
@@ -176,21 +184,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'match',
       value: function match(string) {
         var query = string.replace(/\s+/g, '').toLowerCase();
-        var resultArray = this.main.filter(function (item) {
-          return item.calcMatch(query);
-        });
+        var resultArray = this.main.reduce(function (arr, item) {
+          var weight = item.calcMatch(query);
+
+          if (weight !== false) {
+            arr.push(new ResultItem(item, weight));
+          }
+
+          return arr;
+        }, []);
 
         return new Result(resultArray);
       }
-    }], [{
-      key: 'match',
-      value: function match(string, collection) {
-        return new Fuzz(collection).match(string);
+    }, {
+      key: 'simpleMatch',
+      value: function simpleMatch(string) {
+        var queryRegex = new RegExp(string.split('').join('.*?'), 'i');
+        return this.filter(function (item) {
+          return queryRegex.test(item);
+        });
       }
     }]);
 
     return Fuzz;
   })(Array);
+
+  Fuzz.match = function match(string, collection) {
+    return new Fuzz(collection).match(string);
+  };
 
   var fuzz = Fuzz;
 

@@ -1,18 +1,16 @@
 function sortByWeight(a, b) {
-  if (a.weight > b.weight) return -1;
-  if (a.weight < b.weight) return 1;
-  return 0;
+  return b.weight - a.weight;
 }
 
-class Result extends Array {
+export default class Result extends Array {
   constructor(items) {
     super();
 
-    if (!items.length) return this;
+    if (!items.length) {
+      return false;
+    }
 
     this.meta = items.sort(sortByWeight);
-    super.push.apply(this, this.meta.map(item => item.name));
+    super.push.apply(this, this.meta.map(resultItem => resultItem.item.name));
   }
 }
-
-export default Result;

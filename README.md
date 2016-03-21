@@ -18,10 +18,13 @@ fuzz.match('str');
 ```
 
 The result will have a `meta` array with detailed info about the
-search results. Each `Item` will have a `name`, `mainIndex` which is the index of the result on the main collection, and `weight`.
+search results. Each `ResultItem ` will have a `weight` and an `Item` (with `name` and `mainIndex`, which is the index of the result on the main collection).
 
 ```javascript
 // Getting the first result, for example
 fuzz.match('str').meta[0];
-// Item {name: "str", mainIndex: 1, weight: 167}
+// ResultItem {
+//   item: Item { name: 'str', mainIndex: 2, ... },
+//   weight: 167
+// }
 ```

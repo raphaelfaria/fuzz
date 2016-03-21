@@ -1,11 +1,11 @@
 import Fuzz from '../../src/fuzz';
 import Item from '../../src/item';
-import Result from '../../src/result';
+import ResultItem from '../../src/result-item';
 
 describe('Fuzz', () => {
   const itemsStr = ['string', 'String', 'match', 'something'];
 
-  const itemsNum = [1, 2, 3];
+  // const itemsNum = [1, 2, 3];
 
   describe('constructor', () => {
     it('should construct properly', () => {
@@ -18,23 +18,20 @@ describe('Fuzz', () => {
     });
 
     it('sould throw an error if constructor argument is not array', () => {
-      expect(() => new Fuzz(itemsNum)).to.throw(Error);
+      expect(() => new Fuzz('item')).to.throw(Error, 'Argument to Fuzz should be an array');
     });
 
     it('sould throw an error if array is not of strings', () => {
-      expect(() => new Fuzz(itemsNum)).to.throw(Error);
+      expect(() => new Fuzz([1])).to.throw(Error, 'Argument to Fuzz should be an array of strings');
     });
   });
 
   describe('match', () => {
-    it('should return a Result instance', () => {
+    it('should return an array of ResultItem', () => {
       const fuzzInstance = new Fuzz(itemsStr);
 
-      expect(fuzzInstance.match('s')).to.be.instanceof(Result);
-    });
-
-    it('test quick match', () => {
-      expect(Fuzz.match('s', itemsStr)).to.be.instanceof(Result);
+      expect(fuzzInstance.match('s')).to.be.instanceof(Array);
+      expect(fuzzInstance.match('s').meta[0]).to.be.instanceof(ResultItem);
     });
   });
 });
