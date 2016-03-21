@@ -1,6 +1,6 @@
 # Fuzz
 
-Study of a simple almost-fuzzy string matcher, inspired by TextMate and Sublime searching
+Study of a simple fuzzy string matcher, inspired by TextMate, Atom and Sublime searching
 
 ## Usage
 
