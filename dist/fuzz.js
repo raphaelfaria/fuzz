@@ -11,6 +11,49 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(this, function () {
   'use strict';
 
+  var Cache = (function () {
+    function Cache() {
+      _classCallCheck(this, Cache);
+    }
+
+    _createClass(Cache, [{
+      key: 'construct',
+      value: function construct() {
+        this.arr = null;
+        this.query = null;
+      }
+    }, {
+      key: 'clean',
+      value: function clean() {
+        this.arr = null;
+        this.query = null;
+      }
+    }, {
+      key: 'check',
+      value: function check(query) {
+        if (!this.query || !query) {
+          return false;
+        }
+
+        if (query.length < this.query.length) {
+          return false;
+        }
+
+        if (query === this.query) {
+          return true;
+        }
+
+        if (query.indexOf(this.query) === 0) {
+          return true;
+        }
+
+        return false;
+      }
+    }]);
+
+    return Cache;
+  })();
+
   var Item = (function () {
     function Item(name, index) {
       _classCallCheck(this, Item);
@@ -149,7 +192,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   var Fuzz = (function (_Array2) {
     _inherits(Fuzz, _Array2);
 
-    function Fuzz(collection) {
+    function Fuzz(collection, options) {
       _classCallCheck(this, Fuzz);
 
       _get(Object.getPrototypeOf(Fuzz.prototype), 'constructor', this).call(this);
@@ -160,6 +203,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       this.push.apply(this, collection);
       this.main = this._prepareCollection();
+      this.options = Object.assign({
+        disableCache: false
+      }, options);
+      this.cache = new Cache();
     }
 
     _createClass(Fuzz, [{
@@ -184,15 +231,30 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'match',
       value: function match(string) {
         var query = string.replace(/\s+/g, '').toLowerCase();
-        var resultArray = this.main.reduce(function (arr, item) {
-          var weight = item.calcMatch(query);
+        var cached = !this.options.disableCache && this.cache.check(query);
+
+        var searchArray = this.main;
+
+        if (cached) {
+          searchArray = this.cache.arr;
+        } else {
+          this.cache.clean();
+        }
+
+        var resultArray = searchArray.reduce(function (arr, item) {
+          var searchItem = cached ? item.item : item;
+
+          var weight = searchItem.calcMatch(query);
 
           if (weight !== false) {
-            arr.push(new ResultItem(item, weight));
+            arr.push(new ResultItem(searchItem, weight));
           }
 
           return arr;
         }, []);
+
+        this.cache.arr = resultArray;
+        this.cache.query = query;
 
         return new Result(resultArray);
       }
