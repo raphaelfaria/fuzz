@@ -14,12 +14,6 @@ describe('Item', () => {
       expect(item.name).to.be.equal(name);
       expect(item.mainIndex).to.be.equal(0);
     });
-
-    it('sould detail properly', () => {
-      expect(item._detailedArray[0].index).to.be.equal(0);
-      expect(item._detailedArray[0].char).to.be.equal('S');
-      expect(item._detailedArray[0].beginSection).to.be.true;
-    });
   });
 
   describe('matching', () => {
