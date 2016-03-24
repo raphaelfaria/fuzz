@@ -47,5 +47,12 @@ describe('Fuzz', () => {
       expect(result1).to.be.deep.equal(result2);
       expect(result2).to.be.deep.equal(result3);
     });
+
+    it('should match all items in a diverse array', () => {
+      const diverseArray = require('./diverse-array.json');
+      const fuzz = new Fuzz(diverseArray);
+
+      expect(fuzz.match('test').length).to.be.equal(diverseArray.length);
+    });
   });
 });
