@@ -1,30 +1,49 @@
-function indexIsSectionStart(string, index) {
-  return index === 0 ||
-    (string[index].toUpperCase() === string[index] &&
-      (index === 1 ||
-        string[index - 1].toUpperCase() !== string[index - 1]));
+function isUpper(char) {
+  return char.toUpperCase() === char;
 }
 
-function calculateWeight(name, substringSize, matchIndex, matchIndexArr) {
+function nonWordChar(char) {
+  return /\W/.test(char);
+}
+
+function indexIsSectionStart(string, index) {
+  return index === 0 ||
+    (index === 1 && isUpper(string[index])) ||
+    isUpper(string[index]) || nonWordChar(string[index - 1]);
+}
+
+function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
   const isSectionStart = indexIsSectionStart(name, matchIndex);
 
-  let tempWeight = 0;
+  let weight = 0;
 
-  if (isSectionStart === true) {
-    tempWeight = (80 - matchIndex);
-
-    if (matchIndexArr[matchIndexArr.length - 1] === matchIndex - 1) {
-      tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
-    }
-  } else if (matchIndexArr[matchIndexArr.length - 1] === matchIndex - 1) {
-    tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
-  } else {
-    tempWeight = 10 - matchIndex;
+  if (isSectionStart) {
+    weight += 85;
   }
 
-  tempWeight -= ((name.length - 1) - matchIndexArr[matchIndexArr.length - 1]);
+  if (substringSize > 1) {
+    weight += (50 + (14 * (substringSize - 1)));
+  }
 
-  return tempWeight;
+  if (lastMatchIndex >= 0 && matchIndex - lastMatchIndex > 0) {
+    weight -= (matchIndex - lastMatchIndex);
+  }
+
+  return weight;
+}
+
+function countSections(name) {
+  let count = 0;
+
+  const l = name.length;
+
+  for (let i = 0; i < l; i++) {
+    if (indexIsSectionStart(name, i)) {
+      count++;
+    }
+  }
+
+  return count;
 }
 
 class Item {
@@ -38,7 +57,7 @@ class Item {
     let searchIndex = -1;
     let lookUpper = true;
     let weight = 0;
-    let substringSize = 0;
+    let substringSize = 1;
 
     const l = string.length;
     const lowerTestName = this.name.toLowerCase();
@@ -48,18 +67,33 @@ class Item {
 
       if (searchIndex >= this.name.length) return false;
 
-      searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(
-        lookUpper ? currentChar.toUpperCase() : currentChar,
-        searchIndex + 1
-      );
+      if (lookUpper) {
+        for (let j = searchIndex + 1; j < this.name.length; j++) {
+          if (currentChar === this.name[j].toLowerCase() && indexIsSectionStart(this.name, j)) {
+            searchIndex = j;
+            break;
+          }
+
+          searchIndex = -1;
+        }
+      } else {
+        searchIndex = lowerTestName.indexOf(currentChar, searchIndex + 1);
+      }
 
       if (searchIndex > -1) {
         if (matchIndexArr[matchIndexArr.length - 1] === searchIndex - 1) {
           substringSize++;
+        } else {
+          substringSize = 1;
         }
 
         matchIndexArr.push(searchIndex);
-        weight += calculateWeight(this.name, substringSize, searchIndex, matchIndexArr);
+        weight += calculateWeight(
+          this.name,
+          substringSize,
+          searchIndex,
+          matchIndexArr[matchIndexArr.length - 2]
+        );
 
         continue;
       }
@@ -74,7 +108,15 @@ class Item {
       lookUpper = !lookUpper;
     }
 
-    return !!matchIndexArr.length && weight;
+    if (!matchIndexArr.length) {
+      return false;
+    }
+
+    const sectionCount = countSections(this.name);
+
+    weight = weight - Math.round(matchIndexArr[0] * 1.2) - (sectionCount * l);
+
+    return weight > 0 ? weight : 0;
   }
 }
 
