@@ -1,38 +1,39 @@
 import Item from '../../src/item';
 
 describe('Item', () => {
-  let item;
-
-  const name = 'String';
-
   describe('constructor', () => {
-    beforeEach(() => {
-      item = new Item(name, 0);
-    });
-
     it('should construct properly', () => {
-      expect(item.name).to.be.equal(name);
-      expect(item.mainIndex).to.be.equal(0);
-    });
+      const item = new Item('String', 0);
 
-    it('sould detail properly', () => {
-      expect(item._detailedArray[0].index).to.be.equal(0);
-      expect(item._detailedArray[0].char).to.be.equal('S');
-      expect(item._detailedArray[0].beginSection).to.be.true;
+      expect(item.name).to.be.equal('String');
+      expect(item.mainIndex).to.be.equal(0);
     });
   });
 
   describe('matching', () => {
-    beforeEach(() => {
-      item = new Item(name, 0);
-    });
-
     it('should match and calculate the weight properly', () => {
-      expect(item.calcMatch('s')).to.be.equal(75);
+      const item = new Item('String', 0);
+
+      expect(item.calcMatch('s')).to.be.ok;
     });
 
     it('matches should be empty if there is no match', () => {
+      const item = new Item('String', 0);
+
       expect(item.calcMatch('y')).not.to.be.ok;
+    });
+
+    it('should match a string that have section starts after non section starts', () => {
+      const item1 = new Item('ateSt', 0);
+      const item2 = new Item('ateStT', 0);
+
+      const calcMatch1 = item1.calcMatch('test');
+      const calcMatch2 = item2.calcMatch('test');
+
+      expect(calcMatch1).to.be.ok;
+      expect(calcMatch2).to.be.ok;
+
+      expect(calcMatch1).to.be.above(calcMatch2);
     });
   });
 });
