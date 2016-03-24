@@ -54,36 +54,69 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return Cache;
   })();
 
+  function isUpper(char) {
+    return char.toUpperCase() === char;
+  }
+
+  function nonWordChar(char) {
+    return (/\W/.test(char)
+    );
+  }
+
+  function indexIsSectionStart(string, index) {
+    return index === 0 || index === 1 && isUpper(string[index]) || isUpper(string[index]) || nonWordChar(string[index - 1]);
+  }
+
+  function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
+    var isSectionStart = indexIsSectionStart(name, matchIndex);
+
+    var weight = 0;
+
+    if (isSectionStart) {
+      weight += 85;
+    }
+
+    if (substringSize > 1) {
+      weight += 50 + 14 * (substringSize - 1);
+    }
+
+    if (lastMatchIndex >= 0 && matchIndex - lastMatchIndex > 0) {
+      weight -= matchIndex - lastMatchIndex;
+    }
+
+    return weight;
+  }
+
+  function countSections(name) {
+    var count = 0;
+
+    var l = name.length;
+
+    for (var i = 0; i < l; i++) {
+      if (indexIsSectionStart(name, i)) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
   var Item = (function () {
     function Item(name, index) {
       _classCallCheck(this, Item);
 
       this.name = name;
       this.mainIndex = index;
-      this._detailedArray = this._prepareItem();
     }
 
     _createClass(Item, [{
-      key: '_prepareItem',
-      value: function _prepareItem() {
-        function indexIsSectionStart(string, index) {
-          return index === 0 || string[index].toUpperCase() === string[index] && (index === 1 || string[index - 1].toUpperCase() !== string[index - 1]);
-        }
-
-        return this.name.split('').map(function (char, index, arr) {
-          return {
-            index: index,
-            char: char,
-            beginSection: indexIsSectionStart(arr, index)
-          };
-        });
-      }
-    }, {
       key: 'calcMatch',
       value: function calcMatch(string) {
         var matchIndexArr = [];
         var searchIndex = -1;
         var lookUpper = true;
+        var weight = 0;
+        var substringSize = 1;
 
         var l = string.length;
         var lowerTestName = this.name.toLowerCase();
@@ -93,10 +126,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           if (searchIndex >= this.name.length) return false;
 
-          searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(lookUpper ? currentChar.toUpperCase() : currentChar, searchIndex + 1);
+          if (lookUpper) {
+            for (var j = searchIndex + 1; j < this.name.length; j++) {
+              if (currentChar === this.name[j].toLowerCase() && indexIsSectionStart(this.name, j)) {
+                searchIndex = j;
+                break;
+              }
+
+              searchIndex = -1;
+            }
+          } else {
+            searchIndex = lowerTestName.indexOf(currentChar, searchIndex + 1);
+          }
 
           if (searchIndex > -1) {
+            if (matchIndexArr[matchIndexArr.length - 1] === searchIndex - 1) {
+              substringSize++;
+            } else {
+              substringSize = 1;
+            }
+
             matchIndexArr.push(searchIndex);
+            weight += calculateWeight(this.name, substringSize, searchIndex, matchIndexArr[matchIndexArr.length - 2]);
+
             continue;
           }
 
@@ -110,41 +162,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           lookUpper = !lookUpper;
         }
 
-        return !!matchIndexArr.length && this._calculateWeight(matchIndexArr);
-      }
-    }, {
-      key: '_calculateWeight',
-      value: function _calculateWeight(matchIndexArr) {
-        var _this = this;
+        if (!matchIndexArr.length) {
+          return false;
+        }
 
-        var substringSize = 0;
+        var sectionCount = countSections(this.name);
 
-        return matchIndexArr.reduce(function (weight, matchIndex, index) {
-          var weightCalc = weight;
-          var tempWeight = 0;
+        weight = weight - Math.round(matchIndexArr[0] * 1.2) - sectionCount * l;
 
-          if (_this._detailedArray[matchIndex].beginSection === true) {
-            tempWeight = 80 - matchIndex;
-            weightCalc += tempWeight;
-
-            if (matchIndexArr[index - 1] === matchIndex - 1) {
-              substringSize++;
-              tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
-              weightCalc += tempWeight;
-            }
-          } else if (matchIndexArr[index - 1] === matchIndex - 1) {
-            substringSize++;
-            tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
-            weightCalc += tempWeight;
-          } else {
-            tempWeight = 10 - matchIndex;
-            weightCalc += tempWeight;
-          }
-
-          weightCalc -= _this.name.length - 1 - matchIndexArr[matchIndexArr.length - 1];
-
-          return weightCalc;
-        }, 0);
+        return weight > 0 ? weight : 0;
       }
     }]);
 
@@ -217,14 +243,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }, {
       key: '_prepareCollection',
       value: function _prepareCollection() {
-        var _this2 = this;
+        var _this = this;
 
         return this.map(function (item, i) {
           if (typeof item !== 'string') {
             throw new Error('Argument to Fuzz should be an array of strings');
           }
 
-          return new Item(_this2.parse(item), i);
+          return new Item(_this.parse(item), i);
         });
       }
     }, {
