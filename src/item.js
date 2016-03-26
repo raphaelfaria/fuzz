@@ -23,7 +23,7 @@ function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
   }
 
   if (substringSize > 1) {
-    weight += (50 + (14 * (substringSize - 1)));
+    weight += 50 + 14 * (substringSize - 1);
   }
 
   if (lastMatchIndex >= 0 && matchIndex - lastMatchIndex > 0) {
@@ -70,7 +70,7 @@ class Item {
     let weight = matchIndexArr.reduce((w, matchIndex, index, arr) => {
       let tempWeight = w;
 
-      if (arr[index] === matchIndex - 1) {
+      if (arr[index - 1] === matchIndex - 1) {
         substringSize++;
       } else {
         substringSize = 1;
