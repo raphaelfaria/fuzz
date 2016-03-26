@@ -56,7 +56,7 @@ describe('Fuzz', () => {
       const match = fuzz.match('test');
       const matchArr = match.slice(0);
 
-      // expect(match.length).to.be.equal(diverseArray.length);
+      expect(match.length).to.be.equal(diverseArray.length);
       expect(matchArr.sort()).to.be.deep.equal(diverseArray.sort());
     });
   });
