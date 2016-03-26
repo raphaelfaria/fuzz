@@ -33,20 +33,6 @@ function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
   return weight;
 }
 
-// function countSections(name) {
-//   let count = 0;
-
-//   const l = name.length;
-
-//   for (let i = 0; i < l; i++) {
-//     if (indexIsSectionStart(name, i)) {
-//       count++;
-//     }
-//   }
-
-//   return count;
-// }
-
 class Item {
   constructor(name, index) {
     this.name = name;
@@ -100,11 +86,8 @@ class Item {
       return tempWeight;
     }, 0);
 
-    // const sectionCount = countSections(this.name);
-
     const lastIndexDiff = nl - matchIndexArr[matchIndexArr.length - 1] - 1;
 
-    // weight = weight - Math.round(matchIndexArr[0] * 1.2) - (sectionCount * nl);
     weight = weight - Math.round(matchIndexArr[0] * 1.2) - lastIndexDiff;
 
     return weight > 0 ? weight : 0;
