@@ -31,9 +31,11 @@ describe('Fuzz', () => {
 
     it('should return an array of ResultItem', () => {
       const fuzzInstance = new Fuzz(itemsStr);
+      const match = fuzzInstance.match('s');
 
-      expect(fuzzInstance.match('s')).to.be.instanceof(Array);
-      expect(fuzzInstance.match('s').meta[0]).to.be.instanceof(ResultItem);
+      expect(match).to.be.instanceof(Array);
+      expect(match.length).to.be.equal(3);
+      expect(match.meta[0]).to.be.instanceof(ResultItem);
     });
 
     it('should give the same result if used with cached results', () => {
@@ -51,8 +53,11 @@ describe('Fuzz', () => {
     it('should match all items in a diverse array', () => {
       const diverseArray = require('./diverse-array.json');
       const fuzz = new Fuzz(diverseArray);
+      const match = fuzz.match('test');
+      const matchArr = match.slice(0);
 
-      expect(fuzz.match('test').length).to.be.equal(diverseArray.length);
+      // expect(match.length).to.be.equal(diverseArray.length);
+      expect(matchArr.sort()).to.be.deep.equal(diverseArray.sort());
     });
   });
 });

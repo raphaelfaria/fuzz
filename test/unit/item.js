@@ -35,5 +35,11 @@ describe('Item', () => {
 
       expect(calcMatch1).to.be.above(calcMatch2);
     });
+
+    it('should not match if a string if the first query match is the last on the string', () => {
+      const item = new Item('ab', 0);
+
+      expect(item.calcMatch('bc')).to.not.be.ok;
+    });
   });
 });

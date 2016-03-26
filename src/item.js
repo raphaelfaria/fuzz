@@ -7,7 +7,8 @@ function nonWordChar(char) {
 }
 
 function indexIsSectionStart(string, index) {
-  return index === 0 ||
+  return index >= 0 &&
+    index === 0 ||
     (index === 1 && isUpper(string[index])) ||
     isUpper(string[index]) || nonWordChar(string[index - 1]);
 }
@@ -32,19 +33,19 @@ function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
   return weight;
 }
 
-function countSections(name) {
-  let count = 0;
+// function countSections(name) {
+//   let count = 0;
 
-  const l = name.length;
+//   const l = name.length;
 
-  for (let i = 0; i < l; i++) {
-    if (indexIsSectionStart(name, i)) {
-      count++;
-    }
-  }
+//   for (let i = 0; i < l; i++) {
+//     if (indexIsSectionStart(name, i)) {
+//       count++;
+//     }
+//   }
 
-  return count;
-}
+//   return count;
+// }
 
 class Item {
   constructor(name, index) {
@@ -52,69 +53,59 @@ class Item {
     this.mainIndex = index;
   }
 
-  calcMatch(string) {
-    let matchIndexArr = [];
-    let searchIndex = -1;
-    let lookUpper = true;
-    let weight = 0;
-    let substringSize = 1;
-
-    const l = string.length;
-    const lowerTestName = this.name.toLowerCase();
-
-    for (let i = 0; i < l; i++) {
-      const currentChar = string.charAt(i);
-
-      if (searchIndex >= this.name.length) return false;
-
-      if (lookUpper) {
-        for (let j = searchIndex + 1; j < this.name.length; j++) {
-          if (currentChar === this.name[j].toLowerCase() && indexIsSectionStart(this.name, j)) {
-            searchIndex = j;
-            break;
-          }
-
-          searchIndex = -1;
-        }
-      } else {
-        searchIndex = lowerTestName.indexOf(currentChar, searchIndex + 1);
-      }
-
-      if (searchIndex > -1) {
-        if (matchIndexArr[matchIndexArr.length - 1] === searchIndex - 1) {
-          substringSize++;
-        } else {
-          substringSize = 1;
-        }
-
-        matchIndexArr.push(searchIndex);
-        weight += calculateWeight(
-          this.name,
-          substringSize,
-          searchIndex,
-          matchIndexArr[matchIndexArr.length - 2]
-        );
-
-        continue;
-      }
-
-      if (!lookUpper) {
-        matchIndexArr = [];
-        break;
-      }
-
-      i -= 1;
-      searchIndex = matchIndexArr[matchIndexArr.length - 1] || -1;
-      lookUpper = !lookUpper;
-    }
-
-    if (!matchIndexArr.length) {
+  calcMatch(query) {
+    if (query.length > this.name.length) {
       return false;
     }
 
-    const sectionCount = countSections(this.name);
+    const matchIndexArr = [];
+    const ql = query.length;
+    const nl = this.name.length;
+    const lowerTestName = this.name.toLowerCase();
 
-    weight = weight - Math.round(matchIndexArr[0] * 1.2) - (sectionCount * l);
+    let searchIndex = 0;
+
+    for (let i = 0; i < ql; i++) {
+      const currentChar = query[i];
+
+      if (searchIndex >= nl) return false;
+
+      searchIndex = lowerTestName.indexOf(currentChar, searchIndex);
+
+      if (searchIndex === -1) {
+        return false;
+      }
+
+      matchIndexArr.push(searchIndex++);
+    }
+
+    let substringSize = 1;
+
+    let weight = matchIndexArr.reduce((w, matchIndex, index, arr) => {
+      let tempWeight = w;
+
+      if (arr[index] === matchIndex - 1) {
+        substringSize++;
+      } else {
+        substringSize = 1;
+      }
+
+      tempWeight += calculateWeight(
+        this.name,
+        substringSize,
+        matchIndex,
+        arr[index - 1]
+      );
+
+      return tempWeight;
+    }, 0);
+
+    // const sectionCount = countSections(this.name);
+
+    const lastIndexDiff = nl - matchIndexArr[matchIndexArr.length - 1] - 1;
+
+    // weight = weight - Math.round(matchIndexArr[0] * 1.2) - (sectionCount * nl);
+    weight = weight - Math.round(matchIndexArr[0] * 1.2) - lastIndexDiff;
 
     return weight > 0 ? weight : 0;
   }
