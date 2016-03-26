@@ -76,7 +76,7 @@ class Fuzz extends Array {
   }
 
   static match(string, collection) {
-    return (new Fuzz(collection)).match(string);
+    return (new Fuzz(collection, { disableCache: true })).match(string);
   }
 }
 
