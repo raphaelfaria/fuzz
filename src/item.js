@@ -1,92 +1,96 @@
+function isUpper(char) {
+  return char.toUpperCase() === char;
+}
+
+function nonWordChar(char) {
+  return /\W/.test(char);
+}
+
+function indexIsSectionStart(string, index) {
+  return index >= 0 &&
+    index === 0 ||
+    (index === 1 && isUpper(string[index])) ||
+    isUpper(string[index]) || nonWordChar(string[index - 1]);
+}
+
+function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
+  const isSectionStart = indexIsSectionStart(name, matchIndex);
+
+  let weight = 0;
+
+  if (isSectionStart) {
+    weight += 85;
+  }
+
+  if (substringSize > 1) {
+    weight += 50 + 14 * (substringSize - 1);
+  }
+
+  if (lastMatchIndex >= 0 && matchIndex - lastMatchIndex > 0) {
+    weight -= (matchIndex - lastMatchIndex);
+  }
+
+  return weight;
+}
+
 class Item {
   constructor(name, index) {
     this.name = name;
     this.mainIndex = index;
-    this._detailedArray = this._prepareItem();
   }
 
-  _prepareItem() {
-    function indexIsSectionStart(string, index) {
-      return index === 0 ||
-        (string[index].toUpperCase() === string[index] &&
-          (index === 1 ||
-            string[index - 1].toUpperCase() !== string[index - 1]));
+  calcMatch(query) {
+    if (query.length > this.name.length) {
+      return false;
     }
 
-    return this.name.split('').map((char, index, arr) => {
-      return {
-        index,
-        char,
-        beginSection: indexIsSectionStart(arr, index),
-      };
-    });
-  }
-
-  calcMatch(string) {
-    let matchIndexArr = [];
-    let searchIndex = -1;
-    let lookUpper = true;
-
-    const l = string.length;
+    const matchIndexArr = [];
+    const ql = query.length;
+    const nl = this.name.length;
     const lowerTestName = this.name.toLowerCase();
 
-    for (let i = 0; i < l; i++) {
-      const currentChar = string.charAt(i);
+    let searchIndex = 0;
 
-      if (searchIndex >= this.name.length) return false;
+    for (let i = 0; i < ql; i++) {
+      const currentChar = query[i];
 
-      searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(
-        lookUpper ? currentChar.toUpperCase() : currentChar,
-        searchIndex + 1
-      );
+      if (searchIndex >= nl) return false;
 
-      if (searchIndex > -1) {
-        matchIndexArr.push(searchIndex);
-        continue;
+      searchIndex = lowerTestName.indexOf(currentChar, searchIndex);
+
+      if (searchIndex === -1) {
+        return false;
       }
 
-      if (!lookUpper) {
-        matchIndexArr = [];
-        break;
-      }
-
-      i -= 1;
-      searchIndex = matchIndexArr[matchIndexArr.length - 1] || -1;
-      lookUpper = !lookUpper;
+      matchIndexArr.push(searchIndex++);
     }
 
-    return !!matchIndexArr.length && this._calculateWeight(matchIndexArr);
-  }
+    let substringSize = 1;
 
-  _calculateWeight(matchIndexArr) {
-    let substringSize = 0;
+    let weight = matchIndexArr.reduce((w, matchIndex, index, arr) => {
+      let tempWeight = w;
 
-    return matchIndexArr.reduce((weight, matchIndex, index) => {
-      let weightCalc = weight;
-      let tempWeight = 0;
-
-      if (this._detailedArray[matchIndex].beginSection === true) {
-        tempWeight = (80 - matchIndex);
-        weightCalc += tempWeight;
-
-        if (matchIndexArr[index - 1] === matchIndex - 1) {
-          substringSize++;
-          tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
-          weightCalc += tempWeight;
-        }
-      } else if (matchIndexArr[index - 1] === matchIndex - 1) {
+      if (arr[index - 1] === matchIndex - 1) {
         substringSize++;
-        tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
-        weightCalc += tempWeight;
       } else {
-        tempWeight = 10 - matchIndex;
-        weightCalc += tempWeight;
+        substringSize = 1;
       }
 
-      weightCalc -= ((this.name.length - 1) - matchIndexArr[matchIndexArr.length - 1]);
+      tempWeight += calculateWeight(
+        this.name,
+        substringSize,
+        matchIndex,
+        arr[index - 1]
+      );
 
-      return weightCalc;
+      return tempWeight;
     }, 0);
+
+    const lastIndexDiff = nl - matchIndexArr[matchIndexArr.length - 1] - 1;
+
+    weight = weight - Math.round(matchIndexArr[0] * 1.2) - lastIndexDiff;
+
+    return weight > 0 ? weight : 0;
   }
 }
 

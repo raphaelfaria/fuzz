@@ -54,97 +54,98 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     return Cache;
   })();
 
+  function isUpper(char) {
+    return char.toUpperCase() === char;
+  }
+
+  function nonWordChar(char) {
+    return (/\W/.test(char)
+    );
+  }
+
+  function indexIsSectionStart(string, index) {
+    return index >= 0 && index === 0 || index === 1 && isUpper(string[index]) || isUpper(string[index]) || nonWordChar(string[index - 1]);
+  }
+
+  function calculateWeight(name, substringSize, matchIndex, lastMatchIndex) {
+    var isSectionStart = indexIsSectionStart(name, matchIndex);
+
+    var weight = 0;
+
+    if (isSectionStart) {
+      weight += 85;
+    }
+
+    if (substringSize > 1) {
+      weight += 50 + 14 * (substringSize - 1);
+    }
+
+    if (lastMatchIndex >= 0 && matchIndex - lastMatchIndex > 0) {
+      weight -= matchIndex - lastMatchIndex;
+    }
+
+    return weight;
+  }
+
   var Item = (function () {
     function Item(name, index) {
       _classCallCheck(this, Item);
 
       this.name = name;
       this.mainIndex = index;
-      this._detailedArray = this._prepareItem();
     }
 
     _createClass(Item, [{
-      key: '_prepareItem',
-      value: function _prepareItem() {
-        function indexIsSectionStart(string, index) {
-          return index === 0 || string[index].toUpperCase() === string[index] && (index === 1 || string[index - 1].toUpperCase() !== string[index - 1]);
-        }
-
-        return this.name.split('').map(function (char, index, arr) {
-          return {
-            index: index,
-            char: char,
-            beginSection: indexIsSectionStart(arr, index)
-          };
-        });
-      }
-    }, {
       key: 'calcMatch',
-      value: function calcMatch(string) {
-        var matchIndexArr = [];
-        var searchIndex = -1;
-        var lookUpper = true;
-
-        var l = string.length;
-        var lowerTestName = this.name.toLowerCase();
-
-        for (var i = 0; i < l; i++) {
-          var currentChar = string.charAt(i);
-
-          if (searchIndex >= this.name.length) return false;
-
-          searchIndex = (lookUpper ? this.name : lowerTestName).indexOf(lookUpper ? currentChar.toUpperCase() : currentChar, searchIndex + 1);
-
-          if (searchIndex > -1) {
-            matchIndexArr.push(searchIndex);
-            continue;
-          }
-
-          if (!lookUpper) {
-            matchIndexArr = [];
-            break;
-          }
-
-          i -= 1;
-          searchIndex = matchIndexArr[matchIndexArr.length - 1] || -1;
-          lookUpper = !lookUpper;
-        }
-
-        return !!matchIndexArr.length && this._calculateWeight(matchIndexArr);
-      }
-    }, {
-      key: '_calculateWeight',
-      value: function _calculateWeight(matchIndexArr) {
+      value: function calcMatch(query) {
         var _this = this;
 
-        var substringSize = 0;
+        if (query.length > this.name.length) {
+          return false;
+        }
 
-        return matchIndexArr.reduce(function (weight, matchIndex, index) {
-          var weightCalc = weight;
-          var tempWeight = 0;
+        var matchIndexArr = [];
+        var ql = query.length;
+        var nl = this.name.length;
+        var lowerTestName = this.name.toLowerCase();
 
-          if (_this._detailedArray[matchIndex].beginSection === true) {
-            tempWeight = 80 - matchIndex;
-            weightCalc += tempWeight;
+        var searchIndex = 0;
 
-            if (matchIndexArr[index - 1] === matchIndex - 1) {
-              substringSize++;
-              tempWeight += 15 * Math.pow(2, substringSize) - matchIndex;
-              weightCalc += tempWeight;
-            }
-          } else if (matchIndexArr[index - 1] === matchIndex - 1) {
-            substringSize++;
-            tempWeight = 15 * Math.pow(2, substringSize) - matchIndex;
-            weightCalc += tempWeight;
-          } else {
-            tempWeight = 10 - matchIndex;
-            weightCalc += tempWeight;
+        for (var i = 0; i < ql; i++) {
+          var currentChar = query[i];
+
+          if (searchIndex >= nl) return false;
+
+          searchIndex = lowerTestName.indexOf(currentChar, searchIndex);
+
+          if (searchIndex === -1) {
+            return false;
           }
 
-          weightCalc -= _this.name.length - 1 - matchIndexArr[matchIndexArr.length - 1];
+          matchIndexArr.push(searchIndex++);
+        }
 
-          return weightCalc;
+        var substringSize = 1;
+
+        var weight = matchIndexArr.reduce(function (w, matchIndex, index, arr) {
+          var tempWeight = w;
+
+          if (arr[index - 1] === matchIndex - 1) {
+            substringSize++;
+          } else {
+            substringSize = 1;
+          }
+
+          tempWeight += calculateWeight(_this.name, substringSize, matchIndex, arr[index - 1]);
+
+          return tempWeight;
         }, 0);
+
+        var lastIndexDiff = nl - matchIndexArr[matchIndexArr.length - 1] - 1;
+
+        weight = weight - Math.round(matchIndexArr[0] * 1.2) - lastIndexDiff;
+
+        return weight > 0 ? weight : 0;
       }
     }]);
 
@@ -269,7 +270,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }], [{
       key: 'match',
       value: function match(string, collection) {
-        return new Fuzz(collection).match(string);
+        return new Fuzz(collection, { disableCache: true }).match(string);
       }
     }]);
 
