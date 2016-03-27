@@ -59,5 +59,17 @@ describe('Fuzz', () => {
       expect(match.length).to.be.equal(diverseArray.length);
       expect(matchArr.sort()).to.be.deep.equal(diverseArray.sort());
     });
+
+    it('should give higher weight exact substrings matches', () => {
+      const items1 = [
+        'Core',
+        'ExtentionCore',
+        'Controller',
+      ];
+
+      const match1 = Fuzz.match('core', items1);
+
+      expect(match1.slice(0)).to.be.deep.equal(items1);
+    });
   });
 });
